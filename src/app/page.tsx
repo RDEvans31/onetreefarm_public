@@ -15,7 +15,7 @@ export default function Home() {
         <div className="flex flex-col gap-4 items-center">
           <h1 className="text-2xl font-bold">Coming soon 🚀</h1>
           <p>
-            We're working on some changes to the site. We'll be back soon!
+            We&apos;re working on some changes to the site. We&apos;ll be back soon!
           </p>
           <p>
             In the meantime, if you have any questions,<br />
