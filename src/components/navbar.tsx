@@ -13,7 +13,7 @@ export default function Navbar() {
     // { name: "Farm Store", href: "/store" },
     // { name: "Visit Us", href: "/visit" },
     // { name: "Events", href: "/events" },
-    { name: "Contact", href: "/contact" },
+    { name: "Shop", href: "/shop" },
   ];
 
   return (
@@ -46,12 +46,13 @@ export default function Navbar() {
                 {link.name}
               </Link>
             ))}
-            <Link
+            {/* <Link
               href="/store"
               className="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg font-medium transition duration-150"
             >
               Shop Now
             </Link>
+            */}
           </div>
 
           {/* Mobile menu button */}

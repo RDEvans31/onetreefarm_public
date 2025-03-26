@@ -22,9 +22,9 @@ export default function Hero() {
         <div className="flex flex-col justify-center items-center sm:items-start h-full pt-20">
           <div className="max-w-2xl animate-fade-in">
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 font-serif leading-tight">
-              Real people. <br className="mb-2" />
-              Real food. <br className="mb-2" />
-              The way it should be.
+              Real people <br className="mb-2" />
+              Real food <br className="mb-2" />
+              The way it should be
             </h1>
             <p className="text-xl text-white mb-8 max-w-xl">
               Community-owned off-grid regenerative farm.
