@@ -1,7 +1,7 @@
-import Image from 'next/image';
 import { WooCommerceProduct } from '@/types/woocommerce';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
+import { ProductCard } from '@/components/CardProduct';
 
 async function getProducts(categoryId: string): Promise<WooCommerceProduct[]> {
   const username = process.env.WOOCOMMERCE_KEY || '';
@@ -13,11 +13,31 @@ async function getProducts(categoryId: string): Promise<WooCommerceProduct[]> {
     headers: {
       'Authorization': `Basic ${basicAuth}`,
     },
-    next: { revalidate: 3600 }, // Revalidate every hour
+    next: { revalidate: 3600 },
   });
 
   if (!res.ok) {
     throw new Error('Failed to fetch products');
+  }
+
+  return res.json();
+}
+
+async function getProductVariations(productId: number): Promise<WooCommerceProduct[]> {
+  const username = process.env.WOOCOMMERCE_KEY || '';
+  const password = process.env.WOOCOMMERCE_SECRET || '';
+  
+  const basicAuth = Buffer.from(`${username}:${password}`).toString('base64');
+  
+  const res = await fetch(`https://members.onetreefarm.org/wp-json/wc/v3/products/${productId}/variations`, {
+    headers: {
+      'Authorization': `Basic ${basicAuth}`,
+    },
+    next: { revalidate: 3600 },
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch variations for product ${productId}`);
   }
 
   return res.json();
@@ -29,11 +49,11 @@ async function getCategory(categoryId: string) {
   
   const basicAuth = Buffer.from(`${username}:${password}`).toString('base64');
   
-  const res = await fetch(`https://members.onetreefarm.org/wp-json/wc/v3/products/?parent_id=${categoryId}&per_page=100`, {
+  const res = await fetch(`https://members.onetreefarm.org/wp-json/wc/v3/products/categories/${categoryId}`, {
     headers: {
       'Authorization': `Basic ${basicAuth}`,
     },
-    next: { revalidate: 1800 },
+    next: { revalidate: 3600 },
   });
 
   if (!res.ok) {
@@ -44,54 +64,52 @@ async function getCategory(categoryId: string) {
 }
 
 export default async function CategoryPage({ params }: { params: { id: string } }) {
-  const [products, category] = await Promise.all([
+  // First fetch products and category
+  const [initialProducts, category] = await Promise.all([
     getProducts(params.id),
     getCategory(params.id)
   ]);
 
+  // Then fetch variations for each variable product
+  const productsWithVariations = await Promise.all(
+    initialProducts.map(async (product) => {
+      if (product.type === 'variable') {
+        const variations = await getProductVariations(product.id);
+        // Sort variations by price (lowest first)
+        const sortedVariations = variations.sort((a, b) => 
+          parseFloat(a.price) - parseFloat(b.price)
+        );
+        
+        // Filter to only include in-stock variations
+        const inStockVariations = sortedVariations.filter(
+          variation => variation.stock_status === 'instock'
+        );
+        
+        // Only use in-stock variations if there are any, otherwise use all sorted variations
+        const processedVariations = inStockVariations.length > 0 
+          ? inStockVariations 
+          : sortedVariations;
+        return { ...product, variations: processedVariations };
+      }
+      return product;
+    })
+  );
+
   return (
-    <div className="flex flex-col min-h-screen bg-gray-100">
-      {/* Header */}
-      <div className="bg-white shadow">
-        <div className="max-w-7xl mx-auto px-4 py-6">
-          <div className="flex items-center">
-            <Link href="/shop" className="p-2 bg-white rounded-full shadow">
-              <ArrowLeft size={24} />
-            </Link>
-            <h1 className="ml-4 text-2xl font-bold">{category.name}</h1>
-          </div>
-        </div>
+    <div className="min-h-screen bg-white px-4 pt-4">
+      {/* Back Button and Category Name */}
+      <div className="flex items-center mb-6">
+        <Link href="/shop" className="p-2 bg-white rounded-full shadow">
+          <ArrowLeft className="text-gray-700" size={24} />
+        </Link>
+        <h1 className="ml-4 text-xl font-semibold text-gray-900">{category.name}</h1>
       </div>
 
       {/* Products Grid */}
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {products.map((product) => (
-            <Link href={`/shop/product/${product.id}`} key={product.id} className="bg-white rounded-lg overflow-hidden shadow hover:shadow-lg transition-shadow">
-              {product.images?.[0] && (
-                <div className="relative h-48">
-                  <Image
-                    src={product.images[0].src}
-                    alt={product.images[0].alt || product.name}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              )}
-              <div className="p-4">
-                <h3 className="font-medium text-gray-900">{product.name}</h3>
-                <div className="mt-2 flex justify-between items-center">
-                  <p className="text-gray-900">£{parseFloat(product.price).toFixed(2)}</p>
-                  {product.stock_status === 'instock' ? (
-                    <span className="text-green-600 text-sm">In Stock</span>
-                  ) : (
-                    <span className="text-red-600 text-sm">Out of Stock</span>
-                  )}
-                </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+      <div className="grid grid-cols-2 gap-4">
+        {productsWithVariations.map((product) => (
+          <ProductCard key={product.id} product={product} />
+        ))}
       </div>
     </div>
   );

@@ -58,6 +58,12 @@ export interface WooCommerceLinks {
   }[];
 }
 
+export interface WooCommerceVariationAttribute {
+  id: number;
+  name: string;
+  option: string;
+}
+
 export interface WooCommerceProduct {
   id: number;
   name: string;
@@ -118,7 +124,7 @@ export interface WooCommerceProduct {
   images: WooCommerceImage[];
   attributes: WooCommerceAttribute[];
   default_attributes: any[];
-  variations: number[];
+  variations?: WooCommerceProduct[];
   grouped_products: number[];
   menu_order: number;
   price_html: string;

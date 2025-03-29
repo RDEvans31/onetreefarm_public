@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { WooCommerceCategory } from '@/types/woocommerce';
 import Link from 'next/link';
-import { ArrowLeft, Search } from 'lucide-react';
+import { ArrowLeft, MapPinCheck, Search } from 'lucide-react';
 
 async function getCategories(): Promise<WooCommerceCategory[]> {
   const username = process.env.WOOCOMMERCE_KEY || '';
@@ -25,7 +25,7 @@ async function getCategories(): Promise<WooCommerceCategory[]> {
 
 export default async function ShopPage() {
   const productCategories = await getCategories();
-  const displayCategories = productCategories.filter(category => category.display === 'products');
+  const displayCategories = productCategories.filter(category => category.display === 'products' || category.display === 'default');
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-100">
@@ -80,13 +80,9 @@ export default async function ShopPage() {
               4.8 ⭐
             </span>
             <span className="mx-1">•</span>
-            <span>500+ Reviews</span>
-            <span className="mx-1">•</span>
-            <span>Free Delivery</span>
-            <span className="mx-1">•</span>
-            <span className="flex items-center text-amber-700 font-medium">
-              <span className="inline-block w-4 h-4 bg-amber-700 rounded-full mr-1"></span>
-              Withing 10 minute drive
+            <span className="flex items-center text-green-700 font-medium">
+            <MapPinCheck />
+              Within 10 minute drive
             </span>
           </div>
         </div>
