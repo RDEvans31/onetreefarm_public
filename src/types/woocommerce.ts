@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 export interface WooCommerceDimensions {
   length: string;
   width: string;
@@ -37,7 +35,7 @@ export interface WooCommerceAttribute {
   position: number;
   visible: boolean;
   variation: boolean;
-  options: string[];
+  option: string;
 }
 
 export interface WooCommerceMetaData {

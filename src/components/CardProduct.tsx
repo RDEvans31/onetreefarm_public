@@ -4,21 +4,33 @@ import Image from 'next/image';
 import { Plus } from 'lucide-react';
 import { WooCommerceProduct } from '@/types/woocommerce';
 import { useState } from 'react';
+import { useCartStore } from '@/store';
 
 interface ProductCardProps {
   product: WooCommerceProduct;
 }
 
+const PLACEHOLDER_IMAGE = '/placeholder-product.svg';  // Updated to use SVG
+
 export function ProductCard({ product }: ProductCardProps) {
-    console.log(product.variations);
+  const cartStore = useCartStore();
 
   const [selectedVariation, setSelectedVariation] = useState<WooCommerceProduct | null>(
     product.variations?.length ? product.variations[0] : null
   );
 
   const handleAddToCart = () => {
-    // TODO: Implement add to cart functionality
-    console.log('Adding to cart:', selectedVariation?.id || product.id);
+    const variationImage = selectedVariation?.images?.[0]?.src;
+    const productImage = product.images?.[0]?.src;
+    
+    cartStore.addItem({
+      id: selectedVariation?.id || product.id,
+      name: product.name,
+      price: parseFloat(selectedVariation?.price || product.price),
+      quantity: 1,
+      image: variationImage || productImage || PLACEHOLDER_IMAGE,
+      originalPrice: parseFloat(selectedVariation?.regular_price || product.regular_price)
+    });
   };
 
   const displayPrice = selectedVariation?.price || product.price;
@@ -27,18 +39,18 @@ export function ProductCard({ product }: ProductCardProps) {
     selectedVariation.stock_status === 'instock' : 
     product.stock_status === 'instock';
 
+  const displayImage = selectedVariation?.images?.[0]?.src || product.images?.[0]?.src || PLACEHOLDER_IMAGE;
+
   return (
     <div className="flex flex-col">
-      {product.images?.[0] && (
-        <div className="relative h-40 w-full mb-2">
-          <Image
-            src={product.images[0].src}
-            alt={product.images[0].alt || product.name}
-            fill
-            className="object-cover rounded-lg"
-          />
-        </div>
-      )}
+      <div className="relative h-40 w-full mb-2">
+        <Image
+          src={displayImage}
+          alt={product.images?.[0]?.alt || product.name}
+          fill
+          className="object-cover rounded-lg"
+        />
+      </div>
       <div className="flex justify-between items-start">
         <div>
           <h3 className="font-medium text-gray-900 text-sm">{product.name}</h3>
@@ -53,12 +65,12 @@ export function ProductCard({ product }: ProductCardProps) {
           )}
           
           {/* Variations Selector */}
-          {product.variations?.length > 0 && (
+          {product.variations && product.variations.length > 0 && (
             <select 
               className="mt-2 text-sm border rounded p-1"
               value={selectedVariation?.id}
               onChange={(e) => {
-                const variation = product.variations.find(v => v.id === Number(e.target.value));
+                const variation = product.variations?.find(v => v.id === Number(e.target.value));
                 setSelectedVariation(variation || null);
               }}
             >

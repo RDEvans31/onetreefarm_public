@@ -63,11 +63,14 @@ async function getCategory(categoryId: string) {
   return res.json();
 }
 
-export default async function CategoryPage({ params }: { params: { id: string } }) {
+export default async function CategoryPage({ params }: { params: Promise<{ id: string }> }) {
   // First fetch products and category
+
+  const id = (await params).id;
+
   const [initialProducts, category] = await Promise.all([
-    getProducts(params.id),
-    getCategory(params.id)
+    getProducts(id),
+    getCategory(id)
   ]);
 
   // Then fetch variations for each variable product
