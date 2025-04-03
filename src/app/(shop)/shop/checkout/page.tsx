@@ -1,27 +1,68 @@
 'use client';
 
 import { useCartStore } from '@/store';
-import { ArrowLeft, ChevronRight, Clock, MapPin, Phone, Tag, User } from 'lucide-react';
+import {
+  ArrowLeft,
+  ChevronRight,
+  Clock,
+  MapPin,
+  Phone,
+  User,
+} from 'lucide-react';
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
+import { useSearchParams } from 'next/navigation';
+import { CheckoutPaymentForm } from '@/components/checkout/CheckoutPaymentForm';
 
 export default function CheckoutPage() {
   const { items, getTotal } = useCartStore();
   const [mounted, setMounted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     setMounted(true);
-  }, []);
+    // Check for canceled payment
+    if (searchParams?.get('canceled')) {
+      setError('Payment was canceled. Please try again.');
+    }
+  }, [searchParams]);
+
+  const prices = useMemo(() => {
+    const subtotal = getTotal();
+    const deliveryFee = subtotal > 100 ? 0 : 0.29;
+    const fees = subtotal * 0.05;
+    const total = subtotal + deliveryFee + fees;
+    return { subtotal, deliveryFee, fees, total };
+  }, [getTotal]);
 
   if (!mounted) {
-    return <div>Loading...</div>;
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="sticky top-0 bg-white border-b z-40">
+          <div className="px-4 py-3">
+            <h1 className="text-2xl font-bold">Checkout</h1>
+          </div>
+        </div>
+        <div className="p-4 flex justify-center items-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
+        </div>
+      </div>
+    );
   }
 
-  const subtotal = getTotal();
-  const deliveryFee = subtotal > 100 ? 0 : 0.29;
-  const fees = subtotal * 0.05;
-  const total = subtotal + deliveryFee + fees;
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="p-4 flex justify-center items-center">
+          <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-lg">
+            {error}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -47,14 +88,16 @@ export default function CheckoutPage() {
               Edit pin
             </button>
           </div>
-          
+
           {/* Address */}
           <div className="p-4 space-y-4">
             <div className="flex items-start gap-4">
               <MapPin className="mt-1" />
               <div className="flex-1">
                 <h3 className="font-medium">1 Myrtle Road</h3>
-                <p className="text-gray-600">Cabot, Bristol, Bristol, Avon, England, BS2 8BL</p>
+                <p className="text-gray-600">
+                  Cabot, Bristol, Bristol, Avon, England, BS2 8BL
+                </p>
                 <div className="mt-1 inline-block bg-yellow-50 text-yellow-800 text-sm px-2 py-1 rounded">
                   Address seems far away
                 </div>
@@ -67,7 +110,9 @@ export default function CheckoutPage() {
               <User />
               <div className="flex-1">
                 <h3 className="font-medium">Meet at my door</h3>
-                <p className="text-green-600">Add delivery instructions & photos</p>
+                <p className="text-green-600">
+                  Add delivery instructions & photos
+                </p>
               </div>
               <ChevronRight className="text-gray-400" />
             </div>
@@ -107,10 +152,10 @@ export default function CheckoutPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 bg-gray-100 rounded-full overflow-hidden">
-                <Image 
-                  src="/otf-logo.svg" 
-                  alt="One Tree Farm" 
-                  width={48} 
+                <Image
+                  src="/otf-logo.svg"
+                  alt="One Tree Farm"
+                  width={48}
                   height={48}
                   className="w-full h-full object-cover"
                 />
@@ -123,49 +168,32 @@ export default function CheckoutPage() {
             <ChevronRight className="text-gray-400" />
           </div>
 
-          {/* Gift Option */}
-          <div className="flex items-center justify-between py-4 border-t">
-            <div className="flex items-center gap-3">
-              <div className="text-pink-500">🎁</div>
-              <div>
-                <h3 className="font-medium">Send as a gift</h3>
-                <p className="text-gray-500">With a personalised Mother&apos;s Day card</p>
-              </div>
-            </div>
-            <ChevronRight className="text-gray-400" />
-          </div>
-
-          {/* Promo Code */}
-          <div className="flex items-center justify-between py-4 border-t">
-            <div className="flex items-center gap-3">
-              <Tag />
-              <h3 className="font-medium">Add promo code</h3>
-            </div>
-            <ChevronRight className="text-gray-400" />
-          </div>
-
           {/* Price Breakdown */}
           <div className="space-y-2 pt-4 border-t">
             <div className="flex justify-between">
               <span className="text-gray-600">Subtotal</span>
               <div>
-                <span className="text-gray-500 line-through mr-2">£{(subtotal * 1.1).toFixed(2)}</span>
-                <span>£{subtotal.toFixed(2)}</span>
+                <span className="text-gray-500 line-through mr-2">
+                  £{(prices.subtotal * 1.1).toFixed(2)}
+                </span>
+                <span>£{prices.subtotal.toFixed(2)}</span>
               </div>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Delivery fee</span>
-              <span>£{deliveryFee.toFixed(2)}</span>
+              <span>£{prices.deliveryFee.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Fees</span>
-              <span>£{fees.toFixed(2)}</span>
+              <span>£{prices.fees.toFixed(2)}</span>
             </div>
             <div className="flex justify-between font-bold pt-2 border-t">
               <span>Total</span>
               <div>
-                <span className="text-gray-500 line-through text-sm mr-2">£{(total * 1.1).toFixed(2)}</span>
-                <span>£{total.toFixed(2)}</span>
+                <span className="text-gray-500 line-through text-sm mr-2">
+                  £{(prices.total * 1.1).toFixed(2)}
+                </span>
+                <span>£{prices.total.toFixed(2)}</span>
               </div>
             </div>
           </div>
@@ -173,40 +201,18 @@ export default function CheckoutPage() {
 
         {/* Payment Method */}
         <div className="bg-white rounded-lg">
-          <div className="flex items-center justify-between p-4 border-b">
-            <div className="flex items-center gap-3">
-              <Image 
-                src="/mastercard.svg" 
-                alt="Mastercard" 
-                width={32} 
-                height={20} 
-              />
-              <span>Mastercard ••••0884</span>
-            </div>
-            <ChevronRight className="text-gray-400" />
-          </div>
-          <div className="flex items-center justify-between p-4">
-            <div>
-              <h3 className="font-medium">Request an invoice</h3>
-              <p className="text-gray-500">Add tax details</p>
-            </div>
-            <ChevronRight className="text-gray-400" />
-          </div>
+          <CheckoutPaymentForm
+            items={items}
+            deliveryFee={prices.deliveryFee}
+            fees={prices.fees}
+          />
         </div>
 
-        <p className="text-gray-500 text-sm">
-          Promotions: Promotions are estimates, not guaranteed, and may depend on item and promotion availability in the shop.
-        </p>
-      </div>
-
-      {/* Fixed Bottom Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t p-4 space-y-4">
-        <div className="bg-red-600 text-white p-3 rounded-lg text-center">
-          Saving £{(total * 0.1).toFixed(2)} with promotions
-        </div>
-        <button className="w-full bg-black text-white py-4 rounded-lg font-medium">
-          Next
-        </button>
+        {error && (
+          <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-lg">
+            {error}
+          </div>
+        )}
       </div>
     </div>
   );

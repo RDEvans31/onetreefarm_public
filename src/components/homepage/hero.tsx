@@ -16,7 +16,7 @@ export default function Hero() {
         {/* Overlay to ensure text visibility */}
         <div className="absolute inset-0 bg-black bg-opacity-50"></div>
       </div>
-      
+
       {/* Content container - positioned relatively */}
       <div className="relative z-10 h-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col justify-center items-center sm:items-start h-full pt-20">
@@ -30,14 +30,18 @@ export default function Hero() {
               Community-owned off-grid regenerative farm.
             </p>
           </div>
-          
+
           {/* Opening Hours Information Card */}
           <div className="fixed top-0 left-0 right-0 bg-white bg-opacity-90 p-2 shadow-lg w-full max-h-[80px] sm:max-h-[80px] overflow-hidden">
             <div className="max-w-7xl mx-auto">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-green-800 font-serif font-bold text-lg">Opening Hours</h3>
-                  <p className="text-gray-700 text-sm">Closed for visits during the winter. Opening Spring 2025</p>
+                  <h3 className="text-green-800 font-serif font-bold text-lg">
+                    Opening Hours
+                  </h3>
+                  <p className="text-gray-700 text-sm">
+                    Closed for visits during the winter. Opening Spring 2025
+                  </p>
                 </div>
                 <div className="border-l border-green-200 pl-4 ml-4">
                   <p className="text-green-700 font-medium whitespace-nowrap">
@@ -51,4 +55,4 @@ export default function Hero() {
       </div>
     </section>
   );
-};
+}

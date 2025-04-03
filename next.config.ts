@@ -3,11 +3,11 @@ const nextConfig = {
   images: {
     remotePatterns: [
       {
-        protocol: "https",
-        hostname: "members.onetreefarm.org",
-        port: "",
-        pathname: "/wp-content/uploads/**",
-        search: "",
+        protocol: 'https',
+        hostname: 'members.onetreefarm.org',
+        port: '',
+        pathname: '/wp-content/uploads/**',
+        search: '',
       },
     ],
   },

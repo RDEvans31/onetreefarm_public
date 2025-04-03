@@ -161,4 +161,4 @@ export interface WooCommerceCategoryLinks {
   up?: {
     href: string;
   }[];
-} 
+}

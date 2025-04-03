@@ -6,29 +6,31 @@ const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
       items: [],
-      addItem: (item) => set((state) => {
-        const existing = state.items.find(i => i.id === item.id);
-        if (existing) {
-          return {
-            items: state.items.map(i =>
-              i.id === item.id
-                ? { ...i, quantity: i.quantity + 1 }
-                : i
-            )
-          };
-        }
-        return { items: [...state.items, { ...item, quantity: 1 }] };
-      }),
-      removeItem: (id) => set((state) => ({
-        items: state.items.filter(item => item.id !== id)
-      })),
-      updateQuantity: (id: number, quantity: number) => set((state) => ({
-        items: state.items.map(item =>
-          item.id === id ? { ...item, quantity } : item
-        )
-      })),
+      addItem: item =>
+        set(state => {
+          const existing = state.items.find(i => i.id === item.id);
+          if (existing) {
+            return {
+              items: state.items.map(i =>
+                i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+              ),
+            };
+          }
+          return { items: [...state.items, { ...item, quantity: 1 }] };
+        }),
+      removeItem: id =>
+        set(state => ({
+          items: state.items.filter(item => item.id !== id),
+        })),
+      updateQuantity: (id: number, quantity: number) =>
+        set(state => ({
+          items: state.items.map(item =>
+            item.id === id ? { ...item, quantity } : item
+          ),
+        })),
       clearCart: () => set({ items: [] }),
-      getTotal: () => get().items.reduce((sum, item) => sum + item.price * item.quantity, 0),
+      getTotal: () =>
+        get().items.reduce((sum, item) => sum + item.price * item.quantity, 0),
     }),
     {
       name: 'cart-storage',
@@ -36,4 +38,4 @@ const useCartStore = create<CartStore>()(
   )
 );
 
-export default useCartStore; 
+export default useCartStore;

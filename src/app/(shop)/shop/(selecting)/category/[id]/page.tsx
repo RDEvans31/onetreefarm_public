@@ -6,15 +6,18 @@ import { ProductCard } from '@/components/CardProduct';
 async function getProducts(categoryId: string): Promise<WooCommerceProduct[]> {
   const username = process.env.WOOCOMMERCE_KEY || '';
   const password = process.env.WOOCOMMERCE_SECRET || '';
-  
+
   const basicAuth = Buffer.from(`${username}:${password}`).toString('base64');
-  
-  const res = await fetch(`https://members.onetreefarm.org/wp-json/wc/v3/products?category=${categoryId}&per_page=100`, {
-    headers: {
-      'Authorization': `Basic ${basicAuth}`,
-    },
-    next: { revalidate: 3600 },
-  });
+
+  const res = await fetch(
+    `https://members.onetreefarm.org/wp-json/wc/v3/products?category=${categoryId}&per_page=100`,
+    {
+      headers: {
+        Authorization: `Basic ${basicAuth}`,
+      },
+      next: { revalidate: 3600 },
+    }
+  );
 
   if (!res.ok) {
     throw new Error('Failed to fetch products');
@@ -23,18 +26,23 @@ async function getProducts(categoryId: string): Promise<WooCommerceProduct[]> {
   return res.json();
 }
 
-async function getProductVariations(productId: number): Promise<WooCommerceProduct[]> {
+async function getProductVariations(
+  productId: number
+): Promise<WooCommerceProduct[]> {
   const username = process.env.WOOCOMMERCE_KEY || '';
   const password = process.env.WOOCOMMERCE_SECRET || '';
-  
+
   const basicAuth = Buffer.from(`${username}:${password}`).toString('base64');
-  
-  const res = await fetch(`https://members.onetreefarm.org/wp-json/wc/v3/products/${productId}/variations`, {
-    headers: {
-      'Authorization': `Basic ${basicAuth}`,
-    },
-    next: { revalidate: 3600 },
-  });
+
+  const res = await fetch(
+    `https://members.onetreefarm.org/wp-json/wc/v3/products/${productId}/variations`,
+    {
+      headers: {
+        Authorization: `Basic ${basicAuth}`,
+      },
+      next: { revalidate: 3600 },
+    }
+  );
 
   if (!res.ok) {
     throw new Error(`Failed to fetch variations for product ${productId}`);
@@ -46,15 +54,18 @@ async function getProductVariations(productId: number): Promise<WooCommerceProdu
 async function getCategory(categoryId: string) {
   const username = process.env.WOOCOMMERCE_KEY || '';
   const password = process.env.WOOCOMMERCE_SECRET || '';
-  
+
   const basicAuth = Buffer.from(`${username}:${password}`).toString('base64');
-  
-  const res = await fetch(`https://members.onetreefarm.org/wp-json/wc/v3/products/categories/${categoryId}`, {
-    headers: {
-      'Authorization': `Basic ${basicAuth}`,
-    },
-    next: { revalidate: 3600 },
-  });
+
+  const res = await fetch(
+    `https://members.onetreefarm.org/wp-json/wc/v3/products/categories/${categoryId}`,
+    {
+      headers: {
+        Authorization: `Basic ${basicAuth}`,
+      },
+      next: { revalidate: 3600 },
+    }
+  );
 
   if (!res.ok) {
     throw new Error('Failed to fetch category');
@@ -63,35 +74,38 @@ async function getCategory(categoryId: string) {
   return res.json();
 }
 
-export default async function CategoryPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function CategoryPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   // First fetch products and category
 
   const id = (await params).id;
 
   const [initialProducts, category] = await Promise.all([
     getProducts(id),
-    getCategory(id)
+    getCategory(id),
   ]);
 
   // Then fetch variations for each variable product
   const productsWithVariations = await Promise.all(
-    initialProducts.map(async (product) => {
+    initialProducts.map(async product => {
       if (product.type === 'variable') {
         const variations = await getProductVariations(product.id);
         // Sort variations by price (lowest first)
-        const sortedVariations = variations.sort((a, b) => 
-          parseFloat(a.price) - parseFloat(b.price)
+        const sortedVariations = variations.sort(
+          (a, b) => parseFloat(a.price) - parseFloat(b.price)
         );
-        
+
         // Filter to only include in-stock variations
         const inStockVariations = sortedVariations.filter(
           variation => variation.stock_status === 'instock'
         );
-        
+
         // Only use in-stock variations if there are any, otherwise use all sorted variations
-        const processedVariations = inStockVariations.length > 0 
-          ? inStockVariations 
-          : sortedVariations;
+        const processedVariations =
+          inStockVariations.length > 0 ? inStockVariations : sortedVariations;
         return { ...product, variations: processedVariations };
       }
       return product;
@@ -105,15 +119,17 @@ export default async function CategoryPage({ params }: { params: Promise<{ id: s
         <Link href="/shop" className="p-2 bg-white rounded-full shadow">
           <ArrowLeft className="text-gray-700" size={24} />
         </Link>
-        <h1 className="ml-4 text-xl font-semibold text-gray-900">{category.name}</h1>
+        <h1 className="ml-4 text-xl font-semibold text-gray-900">
+          {category.name}
+        </h1>
       </div>
 
       {/* Products Grid */}
       <div className="grid grid-cols-2 gap-4">
-        {productsWithVariations.map((product) => (
+        {productsWithVariations.map(product => (
           <ProductCard key={product.id} product={product} />
         ))}
       </div>
     </div>
   );
-} 
+}

@@ -9,8 +9,8 @@ import Link from 'next/link';
 export default function CartPage() {
   const { items, removeItem, updateQuantity, getTotal } = useCartStore();
   const [mounted, setMounted] = useState(false);
-//   const [promoCode, setPromoCode] = useState('');
-  
+  //   const [promoCode, setPromoCode] = useState('');
+
   // Handle hydration mismatch
   useEffect(() => {
     setMounted(true);
@@ -43,22 +43,25 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-
       <div className="flex justify-between p-4">
-            <button className="p-2 bg-white/80 backdrop-blur-sm rounded-full shadow hover:bg-white transition-colors">
-            <Link href="/shop" className="text-black">
-                <ArrowLeft size={24} />
-            </Link>
-            </button>
-            <div className='py-auto'><h2 className="text-2xl font-bold">One Tree Farm</h2></div>
-            
-    </div>
+        <button className="p-2 bg-white/80 backdrop-blur-sm rounded-full shadow hover:bg-white transition-colors">
+          <Link href="/shop" className="text-black">
+            <ArrowLeft size={24} />
+          </Link>
+        </button>
+        <div className="py-auto">
+          <h2 className="text-2xl font-bold">One Tree Farm</h2>
+        </div>
+      </div>
 
       <div className="p-4 pb-32">
         {/* Cart Items */}
         <div className="space-y-4 mb-8">
-          {items.map((item) => (
-            <div key={item.id} className="flex items-center gap-4 bg-white p-4 rounded-lg">
+          {items.map(item => (
+            <div
+              key={item.id}
+              className="flex items-center gap-4 bg-white p-4 rounded-lg"
+            >
               <div className="w-20 h-20 relative">
                 {item.image && (
                   <Image
@@ -69,7 +72,7 @@ export default function CartPage() {
                   />
                 )}
               </div>
-              
+
               <div className="flex-1">
                 <h3 className="font-medium">{item.name}</h3>
                 <p className="text-gray-600">Best match</p>
@@ -88,10 +91,12 @@ export default function CartPage() {
                 >
                   <X size={20} />
                 </button>
-                
+
                 <div className="flex items-center gap-2 bg-gray-100 rounded-full px-2 py-1">
                   <button
-                    onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                    onClick={() =>
+                      updateQuantity(item.id, Math.max(1, item.quantity - 1))
+                    }
                     className="p-1 hover:bg-gray-200 rounded-full"
                   >
                     <Minus size={16} />
@@ -115,7 +120,6 @@ export default function CartPage() {
           </div>
         ) : (
           <>
-
             {/* Price Breakdown */}
             <div className="bg-white rounded-lg p-4 space-y-4">
               <div className="flex justify-between">
@@ -125,17 +129,17 @@ export default function CartPage() {
                   <span>£{prices.subtotal.toFixed(2)}</span>
                 </div>
               </div>
-              
+
               <div className="flex justify-between">
                 <span className="text-gray-600">Delivery fee</span>
                 <span>£{prices.deliveryFee.toFixed(2)}</span>
               </div>
-              
+
               <div className="flex justify-between">
                 <span className="text-gray-600">Fees</span>
                 <span>£{prices.fees.toFixed(2)}</span>
               </div>
-              
+
               <div className="flex justify-between font-bold text-lg pt-2 border-t">
                 <span>Total</span>
                 <div className="text-right">
@@ -151,7 +155,7 @@ export default function CartPage() {
       {/* Fixed Bottom Bar */}
       {mounted && items.length > 0 && (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t p-4 space-y-4">
-          <Link 
+          <Link
             href="/shop/checkout"
             className="w-full block bg-black text-white py-4 rounded-lg font-medium text-center"
           >
