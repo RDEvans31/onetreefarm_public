@@ -1,56 +1,64 @@
-'use client';
-
-import { useCartStore } from '@/store';
-import {
-  ArrowLeft,
-  ChevronRight,
-  Clock,
-  MapPin,
-  Phone,
-  User,
-} from 'lucide-react';
+import { ArrowLeft, ChevronRight, Phone, User } from 'lucide-react';
 import Link from 'next/link';
-import { useState, useEffect, useMemo } from 'react';
 import Image from 'next/image';
-import { useSearchParams } from 'next/navigation';
 import { CheckoutPaymentForm } from '@/components/checkout/CheckoutPaymentForm';
+import {
+  BillingAddressForm,
+  ShippingAddressForm,
+} from '@/components/checkout/AddressForm';
+import {
+  WooCommerceLineItemResponse,
+  WooCommerceOrderResponse,
+} from '@/types/woocommerce-order-response';
 
-export default function CheckoutPage() {
-  const { items, getTotal } = useCartStore();
-  const [mounted, setMounted] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const searchParams = useSearchParams();
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
 
-  useEffect(() => {
-    setMounted(true);
-    // Check for canceled payment
-    if (searchParams?.get('canceled')) {
-      setError('Payment was canceled. Please try again.');
-    }
-  }, [searchParams]);
+export default async function CheckoutPage({
+  params,
+}: {
+  params: Promise<{ orderId: number }>;
+}) {
+  let error = undefined;
+  const { orderId } = await params;
 
-  const prices = useMemo(() => {
-    const subtotal = getTotal();
-    const deliveryFee = subtotal > 100 ? 0 : 0.29;
-    const fees = subtotal * 0.05;
-    const total = subtotal + deliveryFee + fees;
-    return { subtotal, deliveryFee, fees, total };
-  }, [getTotal]);
+  const { order: pendingOrder }: { order: WooCommerceOrderResponse } =
+    await fetch(`${baseUrl}/api/orders/${orderId}/set-order-pending`, {
+      method: 'POST',
+    })
+      .then(res => {
+        if (!res.ok) throw new Error('Failed to update order');
+        return res.json();
+      })
+      .catch(err => {
+        error = err.message;
+        console.error(error);
+        return null;
+      });
 
-  if (!mounted) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="sticky top-0 bg-white border-b z-40">
-          <div className="px-4 py-3">
-            <h1 className="text-2xl font-bold">Checkout</h1>
-          </div>
-        </div>
-        <div className="p-4 flex justify-center items-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
-        </div>
-      </div>
-    );
+  // we use the order existing in the database as a source of truth
+  const items = pendingOrder.line_items;
+  const shipping_lines = pendingOrder.shipping_lines;
+  const feeLines = pendingOrder.fee_lines;
+  if (!items) {
+    error = 'Could not fetch items in order';
   }
+  const subtotal = pendingOrder.line_items?.reduce(
+    (sum: number, item: WooCommerceLineItemResponse) =>
+      sum + item.price * item.quantity,
+    0
+  );
+  const deliveryFee =
+    shipping_lines?.reduce(
+      (sum: number, line: any) => sum + parseFloat(line.total),
+      0
+    ) || 0;
+  const fees =
+    feeLines?.reduce(
+      (sum: number, fee: any) => sum + parseFloat(fee.total),
+      0
+    ) || 0;
+  const total = subtotal + deliveryFee + fees;
+  const prices = { subtotal, deliveryFee, fees, total };
 
   if (error) {
     return (
@@ -91,20 +99,8 @@ export default function CheckoutPage() {
 
           {/* Address */}
           <div className="p-4 space-y-4">
-            <div className="flex items-start gap-4">
-              <MapPin className="mt-1" />
-              <div className="flex-1">
-                <h3 className="font-medium">1 Myrtle Road</h3>
-                <p className="text-gray-600">
-                  Cabot, Bristol, Bristol, Avon, England, BS2 8BL
-                </p>
-                <div className="mt-1 inline-block bg-yellow-50 text-yellow-800 text-sm px-2 py-1 rounded">
-                  Address seems far away
-                </div>
-              </div>
-              <ChevronRight className="text-gray-400" />
-            </div>
-
+            <ShippingAddressForm />
+            <BillingAddressForm />
             {/* Delivery Instructions */}
             <div className="flex items-start gap-4">
               <User />
@@ -127,9 +123,8 @@ export default function CheckoutPage() {
             </div>
           </div>
         </div>
-
         {/* Delivery Time */}
-        <div className="bg-white rounded-lg p-4">
+        {/* <div className="bg-white rounded-lg p-4">
           <div className="flex items-center gap-2 mb-4">
             <Clock />
             <h2 className="font-medium">Delivery time</h2>
@@ -145,7 +140,7 @@ export default function CheckoutPage() {
               <p className="text-green-600 text-sm">Up to £1.50 off</p>
             </div>
           </div>
-        </div>
+        </div> */}
 
         {/* Order Summary */}
         <div className="bg-white rounded-lg p-4 space-y-4">
@@ -202,6 +197,7 @@ export default function CheckoutPage() {
         {/* Payment Method */}
         <div className="bg-white rounded-lg">
           <CheckoutPaymentForm
+            orderId={orderId}
             items={items}
             deliveryFee={prices.deliveryFee}
             fees={prices.fees}

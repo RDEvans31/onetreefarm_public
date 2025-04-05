@@ -2,18 +2,14 @@ import Image from 'next/image';
 import { WooCommerceCategory } from '@/types/woocommerce';
 import Link from 'next/link';
 import { ArrowLeft, MapPinCheck, Search } from 'lucide-react';
+import { WOOCOMMERCE_API_URL, getWooCommerceAuth } from '@/lib/woocommerce';
 
 async function getCategories(): Promise<WooCommerceCategory[]> {
-  const username = process.env.WOOCOMMERCE_KEY || '';
-  const password = process.env.WOOCOMMERCE_SECRET || '';
-
-  const basicAuth = Buffer.from(`${username}:${password}`).toString('base64');
-
   const res = await fetch(
-    'https://members.onetreefarm.org/wp-json/wc/v3/products/categories?per_page=100',
+    `${WOOCOMMERCE_API_URL}/products/categories?per_page=100`,
     {
       headers: {
-        Authorization: `Basic ${basicAuth}`,
+        Authorization: `Basic ${getWooCommerceAuth()}`,
       },
       next: { revalidate: 3600 }, // Revalidate every hour
     }

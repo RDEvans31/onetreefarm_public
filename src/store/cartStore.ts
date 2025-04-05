@@ -5,6 +5,8 @@ import type { CartStore } from './types';
 const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
+      orderId: undefined,
+      setOrderId: (id: number | undefined) => set({ orderId: id }),
       items: [],
       addItem: item =>
         set(state => {
@@ -28,7 +30,7 @@ const useCartStore = create<CartStore>()(
             item.id === id ? { ...item, quantity } : item
           ),
         })),
-      clearCart: () => set({ items: [] }),
+      clearCart: () => set({ items: [], orderId: undefined }),
       getTotal: () =>
         get().items.reduce((sum, item) => sum + item.price * item.quantity, 0),
     }),

@@ -5,25 +5,117 @@ import { ArrowLeft, Minus, Plus, X } from 'lucide-react';
 import Image from 'next/image';
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import { WooCommerceOrderRequestPayload } from '@/types/woocommerce-order-request';
 
 export default function CartPage() {
-  const { items, removeItem, updateQuantity, getTotal } = useCartStore();
+  const { setOrderId, items, removeItem, updateQuantity, getTotal } =
+    useCartStore();
   const [mounted, setMounted] = useState(false);
-  //   const [promoCode, setPromoCode] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+
+  // Calculate prices using useMemo to prevent unnecessary recalculations
+  const prices = useMemo(() => {
+    const subtotal = getTotal();
+    const deliveryFee =
+      subtotal >= Number(process.env.NEXT_PUBLIC_MIN_ORDER_AMOUNT)
+        ? 0
+        : Number(process.env.NEXT_PUBLIC_DELIVERY_FEE);
+    const fees = subtotal * 0.01;
+    const total = subtotal + deliveryFee + fees;
+    return { subtotal, deliveryFee, fees, total, items };
+  }, [getTotal, items]);
+
+  const proceedToCheckout = async () => {
+    if (items.length === 0) {
+      setError('Your cart is empty');
+      return;
+    }
+
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const orderData: WooCommerceOrderRequestPayload = {
+        payment_method: 'stripe',
+        payment_method_title: 'Stripe',
+        set_paid: false,
+        line_items: items.map(item => ({
+          product_id: item.id,
+          quantity: item.quantity,
+        })),
+        billing: {
+          first_name: '',
+          last_name: '',
+          address_1: '',
+          city: '',
+          state: '',
+          postcode: '',
+          country: 'GB',
+          email: 'test@example.com',
+          phone: '',
+        },
+        shipping: {
+          first_name: '',
+          last_name: '',
+          address_1: '',
+          city: '',
+          state: '',
+          postcode: '',
+          country: 'GB',
+          email: '',
+          phone: '',
+        },
+        shipping_lines: [
+          {
+            method_id: 'flat_rate',
+            method_title: 'Shipping',
+            total: prices.deliveryFee.toString(),
+          },
+        ],
+        fee_lines: [
+          {
+            name: 'Service Fee',
+            amount: prices.fees.toString(),
+            total: prices.fees.toString(),
+          },
+        ],
+      };
+
+      const response = await fetch('/api/orders/create-draft-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create draft order');
+      }
+
+      const { order } = await response.json();
+      console.log(order);
+      if (!order.id) {
+        throw new Error('Failed to create order - no orderId returned.');
+      }
+      setOrderId(order.id);
+      router.push(`/shop/checkout/${order.id}`);
+    } catch (error) {
+      console.error('Error creating draft order:', error);
+      setError('Failed to create draft order. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Handle hydration mismatch
   useEffect(() => {
     setMounted(true);
   }, []);
-
-  // Calculate prices using useMemo to prevent unnecessary recalculations
-  const prices = useMemo(() => {
-    const subtotal = getTotal();
-    const deliveryFee = subtotal > 100 ? 0 : 0.29;
-    const fees = subtotal * 0.05; // 5% service fee
-    const total = subtotal + deliveryFee + fees;
-    return { subtotal, deliveryFee, fees, total, items };
-  }, [getTotal, items]);
 
   // Show loading state before hydration
   if (!mounted) {
@@ -35,7 +127,34 @@ export default function CartPage() {
           </div>
         </div>
         <div className="p-4 flex justify-center items-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-gray-900"></div>
+          <LoadingSpinner />
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="sticky top-0 bg-white border-b z-40">
+          <div className="px-4 py-3">
+            <h1 className="text-2xl font-bold">One Tree Farm</h1>
+          </div>
+        </div>
+        <div className="p-4 flex justify-center items-center">
+          <div className="bg-red-50 border border-red-200 text-red-600 p-4 rounded-lg w-full max-w-md">
+            {error}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="p-4 flex justify-center items-center">
+          <LoadingSpinner />
         </div>
       </div>
     );
@@ -75,7 +194,6 @@ export default function CartPage() {
 
               <div className="flex-1">
                 <h3 className="font-medium">{item.name}</h3>
-                <p className="text-gray-600">Best match</p>
                 <div className="flex items-center gap-2 mt-1">
                   <span className="font-bold">£{item.price.toFixed(2)}</span>
                   {/* {item.originalPrice && (
@@ -155,12 +273,12 @@ export default function CartPage() {
       {/* Fixed Bottom Bar */}
       {mounted && items.length > 0 && (
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t p-4 space-y-4">
-          <Link
-            href="/shop/checkout"
+          <button
+            onClick={proceedToCheckout}
             className="w-full block bg-black text-white py-4 rounded-lg font-medium text-center"
           >
             Go to checkout
-          </Link>
+          </button>
         </div>
       )}
     </div>

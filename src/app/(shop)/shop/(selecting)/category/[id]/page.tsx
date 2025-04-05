@@ -2,18 +2,14 @@ import { WooCommerceProduct } from '@/types/woocommerce';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { ProductCard } from '@/components/CardProduct';
+import { WOOCOMMERCE_API_URL, getWooCommerceAuth } from '@/lib/woocommerce';
 
 async function getProducts(categoryId: string): Promise<WooCommerceProduct[]> {
-  const username = process.env.WOOCOMMERCE_KEY || '';
-  const password = process.env.WOOCOMMERCE_SECRET || '';
-
-  const basicAuth = Buffer.from(`${username}:${password}`).toString('base64');
-
   const res = await fetch(
-    `https://members.onetreefarm.org/wp-json/wc/v3/products?category=${categoryId}&per_page=100`,
+    `${WOOCOMMERCE_API_URL}/products?category=${categoryId}&per_page=100`,
     {
       headers: {
-        Authorization: `Basic ${basicAuth}`,
+        Authorization: `Basic ${getWooCommerceAuth()}`,
       },
       next: { revalidate: 3600 },
     }
@@ -29,16 +25,11 @@ async function getProducts(categoryId: string): Promise<WooCommerceProduct[]> {
 async function getProductVariations(
   productId: number
 ): Promise<WooCommerceProduct[]> {
-  const username = process.env.WOOCOMMERCE_KEY || '';
-  const password = process.env.WOOCOMMERCE_SECRET || '';
-
-  const basicAuth = Buffer.from(`${username}:${password}`).toString('base64');
-
   const res = await fetch(
-    `https://members.onetreefarm.org/wp-json/wc/v3/products/${productId}/variations`,
+    `${WOOCOMMERCE_API_URL}/products/${productId}/variations`,
     {
       headers: {
-        Authorization: `Basic ${basicAuth}`,
+        Authorization: `Basic ${getWooCommerceAuth()}`,
       },
       next: { revalidate: 3600 },
     }
@@ -52,16 +43,11 @@ async function getProductVariations(
 }
 
 async function getCategory(categoryId: string) {
-  const username = process.env.WOOCOMMERCE_KEY || '';
-  const password = process.env.WOOCOMMERCE_SECRET || '';
-
-  const basicAuth = Buffer.from(`${username}:${password}`).toString('base64');
-
   const res = await fetch(
-    `https://members.onetreefarm.org/wp-json/wc/v3/products/categories/${categoryId}`,
+    `${WOOCOMMERCE_API_URL}/products/categories/${categoryId}`,
     {
       headers: {
-        Authorization: `Basic ${basicAuth}`,
+        Authorization: `Basic ${getWooCommerceAuth()}`,
       },
       next: { revalidate: 3600 },
     }
