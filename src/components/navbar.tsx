@@ -12,7 +12,7 @@ export default function Navbar() {
     // { name: "Products", href: "/products" },
     // { name: "Farm Store", href: "/store" },
     // { name: "Visit Us", href: "/visit" },
-    // { name: "Events", href: "/events" },
+    { name: "Learning Freely", href: "/learning-freely" },
     { name: "Shop", href: "/shop" },
   ];
 
@@ -91,13 +91,6 @@ export default function Navbar() {
                 {link.name}
               </Link>
             ))}
-            <Link 
-              href="/store"
-              className="block w-full text-center bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg font-medium mt-4"
-              onClick={() => setMenuOpen(false)}
-            >
-              Shop Now
-            </Link>
           </div>
         </div>
       )}
