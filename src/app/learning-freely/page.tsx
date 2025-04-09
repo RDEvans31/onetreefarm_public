@@ -9,7 +9,7 @@ export default function LearningFreely() {
         {/* Background Image */}
         <div className="absolute inset-0">
           <Image
-            src="https://members.onetreefarm.org/wp-content/uploads/2024/05/IMG-20240328-WA0063.jpg"
+            src="/learning-freely-cover.webp"
             alt="Kids playing"
             fill
             className="object-cover brightness-75"
