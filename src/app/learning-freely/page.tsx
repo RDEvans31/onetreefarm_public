@@ -11,6 +11,7 @@ export default function LearningFreely() {
           <Image
             src="/learning-freely-cover.webp"
             alt="Kids playing"
+            priority={true}
             fill
             className="object-cover brightness-75"
           />
