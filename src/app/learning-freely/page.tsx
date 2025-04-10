@@ -170,7 +170,7 @@ export default function LearningFreely() {
             </p>
           </div>
           <div className="w-full max-w-4xl mx-auto flex justify-center">
-          <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSeioLJucQssI_1iRRakoR2Oh9FwWw9aPvo-HldZ0dt8Eqv8Tw/viewform?embedded=true" width="640" height="2000">Loading…</iframe>
+          {/* <iframe src="https://docs.google.com/forms/d/e/1FAIpQLSeioLJucQssI_1iRRakoR2Oh9FwWw9aPvo-HldZ0dt8Eqv8Tw/viewform?embedded=true" width="640" height="2000">Loading…</iframe> */}
           </div>
         </div>
       </section>
