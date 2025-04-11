@@ -3,8 +3,12 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
+import { SignIn } from './navbar/ButtonSignIn';
+import { useSession } from 'next-auth/react';
+import { SignOut } from './navbar/ButtonSignOut';
 
 export default function Navbar() {
+  const { data: session } = useSession();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const navLinks = [
@@ -12,8 +16,7 @@ export default function Navbar() {
     // { name: "Products", href: "/products" },
     // { name: "Farm Store", href: "/store" },
     // { name: "Visit Us", href: "/visit" },
-    { name: "Learning Freely", href: "/learning-freely" },
-    { name: 'Shop', href: '/' },
+    { name: 'Learning Freely', href: '/learning-freely' },
   ];
 
   return (
@@ -46,13 +49,19 @@ export default function Navbar() {
                 {link.name}
               </Link>
             ))}
-            {/* <Link
-              href="/store"
-              className="bg-green-700 hover:bg-green-800 text-white px-4 py-2 rounded-lg font-medium transition duration-150"
-            >
-              Shop Now
-            </Link>
-            */}
+            {session ? (
+              <>
+                <Link
+                  href="/shop"
+                  className="text-green-700 hover:text-green-900 hover:underline font-medium transition duration-150"
+                >
+                  Shop
+                </Link>
+                <SignOut />
+              </>
+            ) : (
+              <SignIn />
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -60,7 +69,7 @@ export default function Navbar() {
             <button
               onClick={() => setMenuOpen(!menuOpen)}
               className="inline-flex items-center justify-center p-2 rounded-md text-green-700 hover:text-green-900 hover:bg-green-100 focus:outline-none"
-              aria-expanded="false"
+              aria-expanded={menuOpen}
             >
               <span className="sr-only">Open main menu</span>
               {menuOpen ? (
@@ -104,7 +113,7 @@ export default function Navbar() {
       {/* Mobile menu */}
       {menuOpen && (
         <div className="md:hidden bg-green-50 shadow-lg">
-          <div className="px-2 pt-2 pb-4 space-y-1 border-t border-green-200">
+          <div className="px-4 pt-2 pb-4 space-y-2 border-t border-green-200">
             {navLinks.map(link => (
               <Link
                 key={link.name}
@@ -115,6 +124,22 @@ export default function Navbar() {
                 {link.name}
               </Link>
             ))}
+            {session ? (
+              <>
+                <Link
+                  href="/shop"
+                  className="block px-3 py-2 text-green-700 font-medium hover:bg-green-100 rounded-md"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  Shop
+                </Link>
+                <SignOut />
+              </>
+            ) : (
+              <div className="px-3 py-2">
+                <SignIn />
+              </div>
+            )}
           </div>
         </div>
       )}

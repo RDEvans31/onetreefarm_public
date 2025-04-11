@@ -8,7 +8,7 @@ export default function Hero() {
       <div className="absolute inset-0">
         <Image
           src="https://members.onetreefarm.org/wp-content/uploads/2024/06/74fea7f5-4ac9-4d07-859d-651913fabe98-1.jpg"
-          alt="One Tree Farm"
+          alt="One Tree Farm Cows and Chickens"
           fill
           className="object-cover"
           priority
