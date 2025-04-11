@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
+import { useState } from 'react';
+import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
-  
+
   const navLinks = [
     // { name: "About", href: "/about" },
     // { name: "Products", href: "/products" },
     // { name: "Farm Store", href: "/store" },
     // { name: "Visit Us", href: "/visit" },
     { name: "Learning Freely", href: "/learning-freely" },
-    { name: "Shop", href: "/shop" },
+    { name: 'Shop', href: '/' },
   ];
 
   return (
@@ -37,7 +37,7 @@ export default function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-6">
-            {navLinks.map((link) => (
+            {navLinks.map(link => (
               <Link
                 key={link.name}
                 href={link.href}
@@ -64,12 +64,36 @@ export default function Navbar() {
             >
               <span className="sr-only">Open main menu</span>
               {menuOpen ? (
-                <svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                <svg
+                  className="block h-6 w-6"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
                 </svg>
               ) : (
-                <svg className="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+                <svg
+                  className="block h-6 w-6"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M4 6h16M4 12h16M4 18h16"
+                  />
                 </svg>
               )}
             </button>
@@ -81,7 +105,7 @@ export default function Navbar() {
       {menuOpen && (
         <div className="md:hidden bg-green-50 shadow-lg">
           <div className="px-2 pt-2 pb-4 space-y-1 border-t border-green-200">
-            {navLinks.map((link) => (
+            {navLinks.map(link => (
               <Link
                 key={link.name}
                 href={link.href}

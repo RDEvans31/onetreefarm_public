@@ -1,5 +1,5 @@
-import Hero from "@/components/homepage/hero";
-import InProgress from "@/components/inprogress";
+import Hero from '@/components/homepage/hero';
+import InProgress from '@/components/inprogress';
 
 export default function Home() {
   return (
