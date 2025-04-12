@@ -11,6 +11,11 @@ export interface WooCommerceAddressResponse {
   phone?: string;
 }
 
+export interface WooCommerceBillingAddressResponse
+  extends WooCommerceAddressResponse {
+  email: string;
+}
+
 export interface WooCommerceLineItemResponse {
   product_id: number;
   variation_id?: number;

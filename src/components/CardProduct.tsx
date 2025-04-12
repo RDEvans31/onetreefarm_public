@@ -28,7 +28,6 @@ export function ProductCard({ product }: ProductCardProps) {
       id: selectedVariation?.id || product.id,
       name: product.name,
       price: parseFloat(selectedVariation?.price || product.price),
-      quantity: 1,
       image: variationImage || productImage || PLACEHOLDER_IMAGE,
       originalPrice: parseFloat(
         selectedVariation?.regular_price || product.regular_price

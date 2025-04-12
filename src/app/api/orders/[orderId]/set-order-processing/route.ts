@@ -3,10 +3,10 @@ import { WOOCOMMERCE_API_URL, getWooCommerceAuth } from '@/lib/woocommerce';
 
 export async function POST(
   req: Request,
-  { params }: { params: { orderId: string } }
+  { params }: { params: Promise<{ orderId: string }> }
 ) {
   try {
-    const orderId = parseInt(params.orderId, 10);
+    const { orderId } = await params;
 
     if (!orderId) {
       return new NextResponse('Invalid order ID', { status: 400 });

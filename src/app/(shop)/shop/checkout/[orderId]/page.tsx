@@ -2,10 +2,8 @@ import { ArrowLeft, ChevronRight, Phone, User } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { CheckoutPaymentForm } from '@/components/checkout/CheckoutPaymentForm';
-import {
-  BillingAddressForm,
-  ShippingAddressForm,
-} from '@/components/checkout/AddressForm';
+import { BillingAddressForm } from '@/components/checkout/BillingAddressForm';
+import { ShippingAddressForm } from '@/components/checkout/ShippingAddressForm';
 import {
   WooCommerceLineItemResponse,
   WooCommerceOrderResponse,

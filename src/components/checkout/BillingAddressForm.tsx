@@ -1,27 +1,22 @@
 'use client';
 
 import { useForm } from 'react-hook-form';
-import { WooCommerceAddressResponse } from '@/types/woocommerce-order-response';
+import { WooCommerceBillingAddressResponse } from '@/types/woocommerce-order-response';
 import { useState, useEffect } from 'react';
-import { ChevronUp, MapPin, User, ChevronRight } from 'lucide-react';
+import { ChevronUp, User, ChevronRight } from 'lucide-react';
 import { useUserStore } from '@/store';
 
-interface AddressFormProps {
-  type: 'shipping' | 'billing';
-  initialData?: WooCommerceAddressResponse;
-  onSave: (data: WooCommerceAddressResponse) => void;
-}
-
-function AddressForm({ type, initialData, onSave }: AddressFormProps) {
+export function BillingAddressForm() {
   const [isOpen, setIsOpen] = useState(false);
+  const { billingAddress, setBillingAddress } = useUserStore();
   const {
     register,
     handleSubmit,
     formState: { errors },
     watch,
     reset,
-  } = useForm<WooCommerceAddressResponse>({
-    defaultValues: initialData || {
+  } = useForm<WooCommerceBillingAddressResponse>({
+    defaultValues: billingAddress || {
       first_name: '',
       last_name: '',
       address_1: '',
@@ -34,32 +29,27 @@ function AddressForm({ type, initialData, onSave }: AddressFormProps) {
     },
   });
 
-  // Watch for changes in initialData and update form
   useEffect(() => {
-    if (initialData) {
-      reset(initialData);
+    if (billingAddress) {
+      reset(billingAddress);
     }
-  }, [initialData, reset]);
+  }, [billingAddress, reset]);
 
   const formData = watch();
   const hasAddress = formData.address_1 !== '';
 
-  const onSubmit = (data: WooCommerceAddressResponse) => {
-    onSave(data);
+  const onSubmit = (data: WooCommerceBillingAddressResponse) => {
+    setBillingAddress(data);
     setIsOpen(false);
   };
 
   return (
     <div className="flex items-start gap-4">
-      {type === 'shipping' ? (
-        <MapPin size={20} className="mt-1" />
-      ) : (
-        <User size={20} className="mt-1" />
-      )}
+      <User size={20} className="mt-1" />
       {!isOpen ? (
         <>
           <div className="flex-1">
-            <h3 className="font-medium capitalize">{type} Address</h3>
+            <h3 className="font-medium">Billing Address</h3>
             {hasAddress ? (
               <>
                 <h3 className="font-medium">{formData.address_1}</h3>
@@ -68,7 +58,7 @@ function AddressForm({ type, initialData, onSave }: AddressFormProps) {
                 </p>
               </>
             ) : (
-              <p className="text-green-600 mt-2">Add {type} address</p>
+              <p className="text-green-600 mt-2">Add billing address</p>
             )}
           </div>
           <button onClick={() => setIsOpen(!isOpen)}>
@@ -79,7 +69,7 @@ function AddressForm({ type, initialData, onSave }: AddressFormProps) {
         <div>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="flex justify-between">
-              <h3 className="font-medium capitalize">{type} Address</h3>
+              <h3 className="font-medium">Billing Address</h3>
               <button onClick={() => setIsOpen(!isOpen)}>
                 <ChevronUp size={20} />
               </button>
@@ -201,105 +191,52 @@ function AddressForm({ type, initialData, onSave }: AddressFormProps) {
               </div>
             </div>
 
-            {type === 'billing' && (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    {...register('email', {
-                      required: 'Email is required',
-                      pattern: {
-                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                        message: 'Invalid email address',
-                      },
-                    })}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                  />
-                  {errors.email && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.email.message}
-                    </p>
-                  )}
-                </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Email
+              </label>
+              <input
+                type="email"
+                {...register('email', {
+                  required: 'Email is required',
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: 'Invalid email address',
+                  },
+                })}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+              />
+              {errors.email && (
+                <p className="mt-1 text-sm text-red-600">
+                  {errors.email.message}
+                </p>
+              )}
+            </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">
-                    Phone
-                  </label>
-                  <input
-                    {...register('phone', { required: 'Phone is required' })}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
-                  />
-                  {errors.phone && (
-                    <p className="mt-1 text-sm text-red-600">
-                      {errors.phone.message}
-                    </p>
-                  )}
-                </div>
-              </>
-            )}
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Phone
+              </label>
+              <input
+                {...register('phone', { required: 'Phone is required' })}
+                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-green-500 focus:ring-green-500"
+              />
+              {errors.phone && (
+                <p className="mt-1 text-sm text-red-600">
+                  {errors.phone.message}
+                </p>
+              )}
+            </div>
 
             <button
               type="submit"
               className="w-full block bg-black text-white py-4 rounded-lg font-medium text-center"
             >
-              Save {type} Address
+              Save Billing Address
             </button>
           </form>
         </div>
       )}
     </div>
-  );
-}
-
-export function ShippingAddressForm() {
-  const { shippingAddress, setShippingAddress } = useUserStore();
-
-  return (
-    <AddressForm
-      type="shipping"
-      initialData={shippingAddress || undefined}
-      onSave={setShippingAddress}
-    />
-  );
-}
-
-export function BillingAddressForm() {
-  const { billingAddress, shippingAddress, setBillingAddress } = useUserStore();
-
-  const billingSameAsShipping =
-    billingAddress?.address_1 === shippingAddress?.address_1 &&
-    billingAddress?.city === shippingAddress?.city &&
-    billingAddress?.postcode === shippingAddress?.postcode;
-
-  return (
-    <>
-      <div className="flex items-center gap-2 my-4 pl-8">
-        <input
-          type="checkbox"
-          checked={billingSameAsShipping}
-          id="same-as-shipping"
-          className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-          onChange={e => {
-            if (e.target.checked && shippingAddress) {
-              setBillingAddress(shippingAddress);
-            } else {
-              setBillingAddress(undefined);
-            }
-          }}
-        />
-        <label htmlFor="same-as-shipping" className="text-sm text-gray-700">
-          Billing address same as shipping
-        </label>
-      </div>
-      <AddressForm
-        type="billing"
-        initialData={billingAddress || undefined}
-        onSave={setBillingAddress}
-      />
-    </>
   );
 }

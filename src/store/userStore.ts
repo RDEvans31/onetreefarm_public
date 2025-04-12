@@ -1,18 +1,18 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { UserStore, UserAddress } from './types';
+import type { UserStore, UserAddress, BillingAddress } from './types';
 
 const useUserStore = create<UserStore>()(
   persist(
     set => ({
-      shippingAddress: null,
-      billingAddress: null,
-      setShippingAddress: (address: UserAddress) =>
+      shippingAddress: undefined,
+      billingAddress: undefined,
+      setShippingAddress: (address: UserAddress | undefined) =>
         set({ shippingAddress: address }),
-      setBillingAddress: (address: UserAddress) =>
+      setBillingAddress: (address: BillingAddress | undefined) =>
         set({ billingAddress: address }),
       clearAddresses: () =>
-        set({ shippingAddress: null, billingAddress: null }),
+        set({ shippingAddress: undefined, billingAddress: undefined }),
     }),
     {
       name: 'user-storage',

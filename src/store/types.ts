@@ -38,9 +38,9 @@ export interface BillingAddress extends Address {
 }
 
 export interface UserStore {
-  shippingAddress: UserAddress | null;
-  billingAddress: BillingAddress | null;
+  shippingAddress: UserAddress | undefined;
+  billingAddress: BillingAddress | undefined;
   setShippingAddress: (address?: UserAddress) => void;
-  setBillingAddress: (address?: UserAddress) => void;
+  setBillingAddress: (address?: BillingAddress) => void;
   clearAddresses: () => void;
 }
