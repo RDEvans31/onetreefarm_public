@@ -5,6 +5,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --button-primary: #064526;
 }
 
 /* @media (prefers-color-scheme: dark) {
@@ -18,4 +19,10 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-[#064526] text-white hover:bg-[#053a20] transition-colors duration-200 px-4 py-2 rounded-lg font-medium;
+  }
 }
